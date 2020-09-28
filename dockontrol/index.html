@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,user-scalable=no">
+	<title>List</title>
+	<link rel="stylesheet" href="lib/tau/wearable/theme/default/tau.min.css">
+	<link rel="stylesheet" media="all and (-tizen-geometric-shape: circle)" href="lib/tau/wearable/theme/default/tau.circle.min.css">
+	<!-- load theme file for your application -->
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div class="ui-page" id="main">
+		<header class="ui-header">
+			<h2 class="ui-title">Main menu</h2>
+		</header>
+		<div class="ui-content">
+			<ul class="ui-listview">
+				<li><a id="main-login-button">Login</a></li>
+				<li><a href="settings">Settings</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="ui-page" id="settings">
+		<header class="ui-header">
+			<h2 class="ui-title">TAU List</h2>
+		</header>
+		<div class="ui-content">
+			<div><input type="text" id="settings-url" placeholder="https://cp.libenskedoky.cz/api.php" value="https://cp.libenskedoky.cz/api.php"></div>
+			<div><input type="text" id="settings-usermane" placeholder="testwatch" value="testwatch"></div>
+			<div><input type="password" id="settings-password" placeholder="********"></div>
+			<div><a id="settings-save-button">Save</a></div>
+		</div>
+	</div>
+	<script src="lib/tau/wearable/js/tau.min.js"></script>
+	<script src="js/templates.js"></script>
+	<script src="js/utils.js"></script>
+	<script src="js/login.js"></script>
+	<script src="js/app.js"></script>
+</body>
+</html>
