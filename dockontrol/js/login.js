@@ -18,18 +18,28 @@ function onLoginSuccess(message) {
 	}
 	
 	if(serverResponseObject){
+		if(serverResponseObject.status === "ok"){
+			showGreetingsPopup(serverResponseObject.status) 
+			setAllowedActions(serverResponseObject.allowed_actions);
+			setDefaultTimeout(serverResponseObject.config.timeout * 1000);
+			
+		} else {
+			onLoginFailed(serverResponseObject.message);
+		}
+	
 		setTimeout(function (){
 			location.reload();
 		}, 1900);
-		showGreetingsPopup(serverResponseObject.status)
+		
 	} else {
+		
 		showFailurePopup("failed to parse server response");
-		return;
+
+		setTimeout(function (){
+			location.reload();
+		}, 1900);
 	}
 	
-	setAlloowedActions(serverResponseObject.allowed_actions);
-	
-	setDefaultTimeout(serverResponseObject.config.timeout * 1000);
 	
 }
 
@@ -43,6 +53,7 @@ function onLoginFailed(message) {
 
 function logoutUser(){
 	window.localStorage.clear();
-
-	showGreetingsPopup('ok');
+	showGreetingsPopup('ok');setTimeout(function (){
+		location.reload();
+	}, 1900);
 }

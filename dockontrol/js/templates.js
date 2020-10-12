@@ -9,11 +9,11 @@ const progressPopupTemplate = `<div class="ui-popup" id="progressPopup">
 	</div>`;
 	
 const greetingsPopupTemplate= `<div class="ui-popup greetingsPopup" id="greetingsPopup">
-		<div class="ui-popup-content" id="text"></div>
+		<div class="ui-popup-content" ><p></p></div>
 	</div>`;
 
 const failurePopupTemplate= `<div class="ui-popup failurePopup" id="failurePopup">
-		<div class="ui-popup-content" id="text"></div>
+		<div class="ui-popup-content"><p></p></div>
 	</div>`;
 	
 const logoutButtonTemplate = '<li><a id="main-logout-button">Logout</a></li>';

@@ -46,20 +46,24 @@ function getPassword(){
 	return window.localStorage.getItem(USER_PASSWORD_KEY);
 }
 
-function setAlloowedActions(actionsArray) {
+function setAllowedActions(actionsArray) {
 
 	window.localStorage.setItem(ACTIONS_LIST_KEY, JSON.stringify(actionsArray));
 	
 }
 
-function getAlloowedActions() {
+function deleteAllowedActions() {
+	window.localStorage.removeItem(ACTIONS_LIST_KEY);
+}
 
-	return window.localStorage.getItem(ACTIONS_LIST_KEY);
+function getAllowedActions() {
+	var allowedActions = window.localStorage.getItem(ACTIONS_LIST_KEY);
+	return  allowedActions ? allowedActions : null;
 	
 }
 
 function isUserLoggedIn(){
-	return (window.localStorage.getItem(ACTIONS_LIST_KEY) !== null);
+	return getAllowedActions() !== null;
 }
 
 function performRequest(requestUrl, onSuccess, onFailure) {
@@ -86,6 +90,15 @@ function performRequest(requestUrl, onSuccess, onFailure) {
     xmlHttp.send();
 }
 
+function now() {
+	return Date.now();
+	
+}
+
+function _func_() {
+	return arguments.callee.caller.name;
+}
+
 function showProgressPopup(){
 	
 	var currentPage = document.querySelector(".ui-page-active");
@@ -106,7 +119,7 @@ function showFailurePopup(message){
 	var currentPage = document.querySelector(".ui-page-active");
 	var popup = createElement(failurePopupTemplate);
 	
-	popup.querySelector('#text').innerHTML = message;
+	popup.querySelector('p').innerHTML = message;
 	
 	currentPage.appendChild(popup);
 	tau.widget.Popup(popup).open();
@@ -123,7 +136,7 @@ function showGreetingsPopup(message){
 	var currentPage = document.querySelector(".ui-page-active");
 	var popup = createElement(greetingsPopupTemplate);
 	
-	popup.querySelector('#text').innerHTML = message;
+	popup.querySelector('p').innerHTML = message;
 	
 	currentPage.appendChild(popup);
 	tau.widget.Popup(popup).open();
@@ -146,11 +159,17 @@ function createElement(template){
 
 function closePopup(popupName){
 
+	console.log(Date.now() + " " +  _func_() + " " + popupName);
 	var popup = document.getElementById(popupName);
+	
 	if(!popup) {
 		return;
 	}
-	closeCurrentPopup(popup);
+	setTimeout(function closewGreetingsPopupByTimeout(){
+		if(popup){
+			closeCurrentPopup(popup);			
+		}
+	}, 0);
 	
 }
 
@@ -167,7 +186,7 @@ function closeCurrentPopup(element){
 
 function destroyPopup(element){
 	
-	console.log(element.id);
+	console.log(Date.now() + " " +  _func_() + " " + element.id);
 	
 	if(element.parentNode){
 		

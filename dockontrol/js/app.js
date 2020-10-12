@@ -18,7 +18,7 @@ function addEventListeners() {
 function popupShow(event) {
 	
 	var popup = event.target;
-//	console.log(popup.id);
+	console.log(Date.now() + " " +  _func_() + " " + popup.id);
 	
 }
 
@@ -26,7 +26,8 @@ function popupHide(event) {
 
 	var popup = event.target;
 //	console.log(popup.id);
-	
+
+	console.log(Date.now() + " " +  _func_() + " " + popup.id);
 	destroyPopup(popup);
 
 }
@@ -61,19 +62,25 @@ function pageHide(event) {
 
 function initMainPage(page){
 	var listView = page.querySelector(".ui-listview");
+	var loginButton =  document.getElementById('main-login-button');
 	
+	if(!page){
+		page = document.getElementById("main");x
+	}
 	if(isUserLoggedIn()){
 		createActionList(listView);
 	} else {
-		document.getElementById('main-login-button').addEventListener('click', loginButtonClickListener);
+		loginButton.addEventListener('click', loginButtonClickListener);
 	}
 
 	mainPageList = tau.widget.Listview(listView);
 }
 
 function deinitMainPage(){
-	if(	document.getElementById('main-login-button')){
-		document.getElementById('main-login-button').removeEventListener('click', loginButtonClickListener);		
+	var loginButton =  document.getElementById('main-login-button');
+	
+	if(	loginButton){
+		loginButton.removeEventListener('click', loginButtonClickListener);		
 	}
 	if(mainPageList){
 		mainPageList.destroy();
@@ -91,8 +98,6 @@ function loginButtonClickListener(event) {
 }
 
 function initSettingsPage(page){
-
-	
 	document.getElementById('settings-save-button').addEventListener('click', saveSettingsButtonClickListener);
 //	settingsPageList = tau.widget.Listview(page.querySelector(".ui-listview"));
 }
@@ -155,14 +160,23 @@ function hardwareButtonsListener (ev) {
 
 function createActionList(listView){
 
-	var actionList = JSON.parse(getAlloowedActions());
+	var actionList;
+	try {
+		actionList = JSON.parse(getAllowedActions());		
+	} catch (e) {
+		console.error(e);
+	}
 	
 	if(listView && actionList){
 		listView.innerHTML = '';
 		actionList.forEach( function(element){
 			addActionItem(listView, element);
 		});
+	} else {
+		listView.innerHTML = '<il> Something went wrong </il>';
 	}
+	addLogoutButton(listView);
+	
 	
 }
 
@@ -175,10 +189,26 @@ function addActionItem(listView, element){
 	listView.appendChild(listItem);
 }
 
+function addLogoutButton(listView){
+	var logoutButton = createLogoutButton();
+	logoutButton.addEventListener('click', function() {
+		logoutUser();
+	}, true	);
+
+	listView.appendChild(logoutButton);
+}
+
 function createActionListItem(element){
 	var wrapperDiv = document.createElement('div');
 	wrapperDiv.innerHTML = fillActionTemplateWithData(element);
 	
+	return wrapperDiv.firstChild;
+	
+}
+
+function createLogoutButton(){
+	var wrapperDiv = document.createElement('div');	
+	wrapperDiv.innerHTML = logoutButtonTemplate;
 	return wrapperDiv.firstChild;
 	
 }
