@@ -35,7 +35,8 @@ function getDefaultTimeout(){
 }
 
 function getConnectionUrl(){
-	return window.localStorage.getItem(CONNECTION_URL_KEY);
+	var url = window.localStorage.getItem(CONNECTION_URL_KEY);
+	return url + (url.search(/\/$/i) ? '' : '/') + 'api.php';
 }
 
 function getUsername(){
