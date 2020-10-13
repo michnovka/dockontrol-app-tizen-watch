@@ -113,7 +113,7 @@ function saveSettingsButtonClickListener(event){
 	console.log(event.target.id + "clicked");
 	
 	var url = document.getElementById('settings-url').value;
-	var username = document.getElementById('settings-usermane').value;
+	var username = document.getElementById('settings-username').value;
 	var password = document.getElementById('settings-password').value;
 	
 	if (url && username && password){
