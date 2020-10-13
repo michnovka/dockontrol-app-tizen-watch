@@ -36,6 +36,10 @@ function getDefaultTimeout(){
 
 function getConnectionUrl(){
 	var url = window.localStorage.getItem(CONNECTION_URL_KEY);
+	
+	if(!url)
+		return null;
+	
 	return url + (url.search(/\/$/i) ? '' : '/') + 'api.php';
 }
 

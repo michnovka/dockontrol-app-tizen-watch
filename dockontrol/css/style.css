@@ -25,3 +25,11 @@ app adding his own styles here
 	align-items: center;
 	
 }
+
+.ui-listview li {
+	transition: background-color 0.8s ease, max-height 1ms;
+}
+
+.ui-arc-listview-selected.active{
+	background-color: #5d5c20;
+}

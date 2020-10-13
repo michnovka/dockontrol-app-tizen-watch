@@ -180,20 +180,56 @@ function createActionList(listView){
 	
 }
 
+var longPressButtonInterval = null;
+var longPressButtonIntervalMoved = false;
+var longPressButtonIntervalTimeOutTime = 250;
+
+function prepareLongPressButton(element, callback){
+
+	element.addEventListener('touchstart', function() {
+		console.log('touchstart');
+		longPressButtonIntervalMoved = false;
+		element.classList.add('active');
+		longPressButtonInterval = setTimeout(function(){
+			if(!longPressButtonIntervalMoved){
+				callback();
+			}
+		}, longPressButtonIntervalTimeOutTime);
+	}, true	);
+	
+	element.addEventListener('touchend', function(){
+		console.log('touchend');
+		element.classList.remove('active');
+		longPressButtonIntervalMoved = true;
+		clearTimeout(longPressButtonInterval);
+	}, true);
+
+	element.addEventListener('touchmove', function(){
+		element.classList.remove('active');
+		console.log('touchmove');
+		longPressButtonIntervalMoved = true;
+	}, true);
+}
+
 function addActionItem(listView, element){
 	var listItem = createActionListItem(element);
-	listItem.addEventListener('click', function() {
+
+	prepareLongPressButton(listItem, function(){
+		navigator.vibrate(100);
 		onActionItemClicked(element.action);
-	}, true	);
+	});
 
 	listView.appendChild(listItem);
 }
 
 function addLogoutButton(listView){
+
 	var logoutButton = createLogoutButton();
-	logoutButton.addEventListener('click', function() {
-		logoutUser();
-	}, true	);
+	
+	prepareLongPressButton(logoutButton, function(){
+		navigator.vibrate(100);
+		logoutUser();		
+	});
 
 	listView.appendChild(logoutButton);
 }
@@ -246,6 +282,7 @@ function onActionSuccess(message){
 	}
 	
 	if(serverResponseObject){
+		navigator.vibrate(500);
 		showGreetingsPopup(serverResponseObject.message)
 	} else {
 		showFailurePopup("failed to parse server response");
