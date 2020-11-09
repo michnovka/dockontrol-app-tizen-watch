@@ -1,0 +1,36 @@
+
+body {
+	width: 360px;
+	height: 360px; 
+	background-color: #000;
+	color: #fff;
+	margin: 0;
+	padding: 0;
+}
+
+#triggerContainer{
+	width: 360px;
+	height: 360px; 
+
+}
+
+#launchMainApp{
+	position:absolute;	
+	font-size: 2em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align:center;
+}
+
+.widgetTriggerButton{
+	position:absolute;
+	top: 0;
+	left: 0;
+	font-size: 1.5em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align:center;
+	background-color:rgba(255, 255, 255, 0.05); 
+}

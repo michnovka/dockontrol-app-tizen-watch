@@ -10,60 +10,103 @@ var DEFAULT_TIMEOUT_VALUE = "15000";
 
 function setDefaultTimeout(timeout) {
 	window.localStorage.setItem(DEFAULT_TIMEOUT_KEY, timeout);
+	if(tizen.preference.exists(DEFAULT_TIMEOUT_KEY)){
+		tizen.preference.remove(DEFAULT_TIMEOUT_KEY);
+	}
+	
+	tizen.preference.setValue(DEFAULT_TIMEOUT_KEY, timeout);
 }
 
 function setConnectionUrl(url){
-	window.localStorage.setItem(CONNECTION_URL_KEY, url);
+	if(tizen.preference.exists(CONNECTION_URL_KEY)){
+		tizen.preference.remove(CONNECTION_URL_KEY);
+	}
+	
+	tizen.preference.setValue(CONNECTION_URL_KEY, url);
 }
 
 function setUsername(username){
-	window.localStorage.setItem(USER_NAME_KEY, username);
+	if(tizen.preference.exists(USER_NAME_KEY)){
+		tizen.preference.remove(USER_NAME_KEY);
+	}
+	
+	tizen.preference.setValue(USER_NAME_KEY, username);
 }
 
 function setPassword(password){
-	window.localStorage.setItem(USER_PASSWORD_KEY, password);
+	if(tizen.preference.exists(USER_PASSWORD_KEY)){
+		tizen.preference.remove(USER_PASSWORD_KEY);
+	}
+	
+	tizen.preference.setValue(USER_PASSWORD_KEY, password);
 }
 
 function getDefaultTimeout(){
 	
 	return Number(
-			window.localStorage.getItem(DEFAULT_TIMEOUT_KEY) ? 
-					window.localStorage.getItem(DEFAULT_TIMEOUT_KEY) : 
-						DEFAULT_TIMEOUT_VALUE
+			tizen.preference.exists(DEFAULT_TIMEOUT_KEY) ? 
+					(tizen.preference.getValue(DEFAULT_TIMEOUT_KEY) ? tizen.preference.getValue(DEFAULT_TIMEOUT_KEY) : DEFAULT_TIMEOUT_VALUE)
+					: DEFAULT_TIMEOUT_VALUE
 						);
 	
 }
 
 function getConnectionUrl(){
-	var url = window.localStorage.getItem(CONNECTION_URL_KEY);
+	var url;
+
+	if(tizen.preference.exists(CONNECTION_URL_KEY)){
+		url = tizen.preference.getValue(CONNECTION_URL_KEY);
+	}
 	
-	if(!url)
+	if(!url){
 		return null;
+	}
 	
 	return url + (url.search(/\/$/i) ? '' : '/') + 'api.php';
 }
 
 function getUsername(){
-	return window.localStorage.getItem(USER_NAME_KEY);
+	if(tizen.preference.exists(USER_NAME_KEY)){
+		var userName = tizen.preference.getValue(USER_NAME_KEY);
+		return  userName ? userName : null;
+	}
+	return null;
 }
 
 function getPassword(){
-	return window.localStorage.getItem(USER_PASSWORD_KEY);
+	if(tizen.preference.exists(USER_PASSWORD_KEY)){
+		var password = tizen.preference.getValue(USER_PASSWORD_KEY);
+		return  password ? password : null;
+	}
+	return null;
 }
 
 function setAllowedActions(actionsArray) {
 
-	window.localStorage.setItem(ACTIONS_LIST_KEY, JSON.stringify(actionsArray));
+//	window.localStorage.setItem(ACTIONS_LIST_KEY, JSON.stringify(actionsArray));
 	
+	if(tizen.preference.exists(ACTIONS_LIST_KEY)){
+		tizen.preference.remove(ACTIONS_LIST_KEY);
+	}
+	
+	tizen.preference.setValue(ACTIONS_LIST_KEY, JSON.stringify(actionsArray));
 }
 
 function deleteAllowedActions() {
 	window.localStorage.removeItem(ACTIONS_LIST_KEY);
+	
+	if(tizen.preference.exists(ACTIONS_LIST_KEY)){
+		tizen.preference.remove(ACTIONS_LIST_KEY);
+	}
 }
 
 function getAllowedActions() {
-	var allowedActions = window.localStorage.getItem(ACTIONS_LIST_KEY);
-	return  allowedActions ? allowedActions : null;
+	
+	if(tizen.preference.exists(ACTIONS_LIST_KEY)){
+		var allowedActions = tizen.preference.getValue(ACTIONS_LIST_KEY);
+		return  allowedActions ? allowedActions : null;
+	}
+	return null;
 	
 }
 
@@ -77,16 +120,16 @@ function performRequest(requestUrl, onSuccess, onFailure) {
 	
     xmlHttp.onload = function() { 
     	
-        if (xmlHttp.status == 200){
+        if (xmlHttp.status === 200){
         	
         		onSuccess(xmlHttp.responseText);
         		
         } else {
        		onFailure(xmlHttp.statusText);
         }
-    }
+    };
     
-    xmlHttp.ontimeout = function() {	onFailure("timeout");}
+    xmlHttp.ontimeout = function() {	onFailure("timeout");};
     
     xmlHttp.open("GET", requestUrl, true); // true for asynchronous 
     

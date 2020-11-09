@@ -52,7 +52,7 @@ function onLoginFailed(message) {
 }
 
 function logoutUser(){
-	window.localStorage.clear();
+	
 	showGreetingsPopup('ok');setTimeout(function (){
 		location.reload();
 	}, 1900);
