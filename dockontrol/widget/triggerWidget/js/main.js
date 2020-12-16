@@ -72,10 +72,12 @@ function configureWidgetUi(allowedActions){
 		return;
 	}
 	
-	var allowedActionsCount = allowedActionsArray.length;
+	var allowedActionsCount = allowedActionsArray.length < MAX_ITEM_COUNT ? allowedActionsArray.length :  MAX_ITEM_COUNT;
 	
 	var orbitRadius = allowedActionsCount < 7 ? SIX_ELEMENT_ORBIT_RADIUS : EIGHT_ELEMENT_ORBIT_RADIUS;
 	var elementRadius = allowedActionsCount < 7 ? SIX_ELEMENT_ELEMENT_RADIUS : EIGHT_ELEMENT_TRIGGER_ELEMENT_RADIUS;
+	
+	var images = document.getElementById('imageContainer').children;
 	
 	//max number of elements controlled here with "i < MAX_ITEM_COUNT"
 	for(var i = 0; i < allowedActionsCount && i < MAX_ITEM_COUNT; i++){
@@ -87,28 +89,36 @@ function configureWidgetUi(allowedActions){
 				// UPDATE that was fixed when items received inner <p> tag. keeping it for now to investigate later
 //				y: SCREEN_CENTER.y + Math.round(Math.sin(2 * Math.PI / allowedActionsCount * i) * orbitRadius) - elementRadius - (i === 0 ? 0 : 130), 
 				y: SCREEN_CENTER.y + Math.round(Math.sin(2 * Math.PI / allowedActionsCount * i) * orbitRadius) - elementRadius, 
-				size : elementRadius * 2
+				size: elementRadius * 2,
 			};
 			
-	    addTriggerButtonOnUi(triggerContainer, allowedActionsArray[i], positioningDetails);
+	    addTriggerButtonOnUi(triggerContainer, allowedActionsArray[i], positioningDetails, images[i]);
 	    
 	}
 	
 }
 
-function addTriggerButtonOnUi(container, item, positioningDetails){
+function addTriggerButtonOnUi(container, item, positioningDetails, image){
 	
 	var button = getTriggerButton(item, positioningDetails);
 	
 	button.addEventListener('click', function() {
-		button.style.color = 'red';
-		setTimeout(function() {
-			button.style.color = 'white';
-		}, 2500);
+//		button.style.color = 'red';
+//		setTimeout(function() {
+//			button.style.color = 'white';
+//		}, 2500);
 		sendTriggerRequest(item.action);
 	});
 	
 	container.appendChild(button);
+	
+	setImageBelowButton(positioningDetails, image);
+	
+	image.id = item.action;
+	
+	image.addEventListener('click', function() {
+		sendTriggerRequest(item.action);
+	});
 }
 
 function getTriggerButton(item, positioningDetails){
@@ -122,7 +132,9 @@ function getTriggerButton(item, positioningDetails){
 	button.style.top = positioningDetails.x + 'px';
 	button.style.left = positioningDetails.y + 'px';
 	
-	button.appendChild(getButtonText(item));
+	var text = getButtonText(item);
+
+	button.appendChild(text);
 	
 	return button;
 }
@@ -136,70 +148,79 @@ function getButtonText(item){
 	
 }
 
+function setImageBelowButton(positioningDetails, image){
+
+	image.height = (positioningDetails.size);
+	image.width = (positioningDetails.size);
+	
+	image.style.height = (positioningDetails.size + 20) + 'px';
+	image.style.width = (positioningDetails.size + 20) + 'px';
+	
+	image.style.top = (positioningDetails.x - 10) + 'px';
+	image.style.left = (positioningDetails.y - 10) + 'px';
+	
+	image.style.display = 'block';
+	
+	return image;
+}
+
 function sendTriggerRequest(target) {
 
 	if(!target){
-		document.getElementById('page').style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+		document.getElementById(target).style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
 		setTimeout(function() {
-			document.getElementById('page').style.backgroundColor = 'black';
+			document.getElementById(target).style.backgroundColor = 'transparent';
 		}, 1500);
 		return;
 	}
-	//TODO add progress popups
-//	showProgressPopup();
 
-	document.getElementById('page').style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+	document.getElementById(target).style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
 	var requestUrl = getConnectionUrl() + '?username=' + getUsername() + '&password=' + getPassword() + '&action=' + target;
 	console.log(requestUrl);
 	
-	performRequest(requestUrl, onTriggerSuccess, onTriggerFailed);
+	performRequest(requestUrl, onTriggerSuccess, onTriggerFailed, target);
+
 	
 }
 
-function onTriggerSuccess(message){
+function onTriggerSuccess(message, target){
 //	closePopup('progressPopup');
-	
+
+	document.getElementById(target).style.backgroundColor = 'blue';
 	var serverResponseObject;
-	
+		
 	try {
 		serverResponseObject = JSON.parse(message);		
 	} catch (e) {
 		console.error(e);
 	}
+
 	
 	if(serverResponseObject){
-		document.getElementById('page').style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
+		document.getElementById(target).style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
 		setTimeout(function() {
-			document.getElementById('page').style.backgroundColor = 'black';
+			document.getElementById(target).style.backgroundColor = 'transparent';
 		}, 1500);
-//		navigator.vibrate(500);
-		//TODO show popup
-//		showGreetingsPopup(serverResponseObject.message)
 	} else {
-		document.getElementById('page').style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+		document.getElementById(target).style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
 		setTimeout(function() {
-			document.getElementById('page').style.backgroundColor = 'black';
+			document.getElementById(target).style.backgroundColor = 'transparent';
 		}, 1500);
-//		navigator.vibrate(200, 200, 200);
-		//TODO show popup
-//		showFailurePopup("failed to parse server response");
 		return;
 	}
 }
 
-function onTriggerFailed(message){
-	document.getElementById('page').style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-	setTimeout(function() {
-		document.getElementById('page').style.backgroundColor = 'black';
-	}, 1500);
+function onTriggerFailed(message, target){
 
-	//TODO add implementation
-//	closePopup('progressPopup');
-//	
-//	showFailurePopup("failed to perform action, error: " + message);
+	document.getElementById(target).style.backgroundColor = 'blue';
+	document.getElementById(target).style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+	setTimeout(function() {
+		document.getElementById(target).style.backgroundColor = 'transparent';
+	}, 1500);
 }
 
-function performRequest(requestUrl, onSuccess, onFailure) {
+function performRequest(requestUrl, onSuccess, onFailure, target) {
+	
 	
 	var xmlHttp = new XMLHttpRequest();
 	
@@ -207,20 +228,21 @@ function performRequest(requestUrl, onSuccess, onFailure) {
     	
         if (xmlHttp.status === 200){
         	
-        		onSuccess(xmlHttp.responseText);
+        		onSuccess(xmlHttp.responseText, target);
         		
         } else {
-       		onFailure(xmlHttp.statusText);
+       		onFailure(xmlHttp.statusText, target);
         }
     };
     
-    xmlHttp.ontimeout = function() {	onFailure("timeout");};
+    xmlHttp.ontimeout = function() {	onFailure("timeout", target);};
     
     xmlHttp.open("GET", requestUrl, true); // true for asynchronous 
     
     xmlHttp.timeout = getDefaultTimeout();
-    
+
     xmlHttp.send();
+	document.getElementById(target).style.backgroundColor = 'white';
 }
 
 function launchMainApp(){
