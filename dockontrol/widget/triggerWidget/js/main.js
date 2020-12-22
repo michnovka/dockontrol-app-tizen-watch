@@ -76,11 +76,14 @@ function configureWidgetUi(allowedActions){
 	
 	var orbitRadius = allowedActionsCount < 7 ? SIX_ELEMENT_ORBIT_RADIUS : EIGHT_ELEMENT_ORBIT_RADIUS;
 	var elementRadius = allowedActionsCount < 7 ? SIX_ELEMENT_ELEMENT_RADIUS : EIGHT_ELEMENT_TRIGGER_ELEMENT_RADIUS;
-	
-	var images = document.getElementById('imageContainer').children;
+
+	var backgroundImages = document.getElementById('imageContainer').children;
+	var progressBackgroundImages = document.getElementById('progressImageContainer').children;
+	var successBackgroundImages = document.getElementById('sucsessImageContainer').children;
+	var errorBackgroundImages = document.getElementById('errorImageContainer').children;
 	
 	//max number of elements controlled here with "i < MAX_ITEM_COUNT"
-	for(var i = 0; i < allowedActionsCount && i < MAX_ITEM_COUNT; i++){
+	for(var i = 0; i < allowedActionsCount; i++){
 		
 		var positioningDetails = {
 				x: SCREEN_CENTER.x - Math.round(Math.cos(2 * Math.PI / allowedActionsCount * i) * orbitRadius) - elementRadius, 
@@ -92,13 +95,14 @@ function configureWidgetUi(allowedActions){
 				size: elementRadius * 2,
 			};
 			
-	    addTriggerButtonOnUi(triggerContainer, allowedActionsArray[i], positioningDetails, images[i]);
+	    addTriggerButtonOnUi(triggerContainer, allowedActionsArray[i], positioningDetails, 
+	    		backgroundImages[i], progressBackgroundImages[i], successBackgroundImages[i], errorBackgroundImages[i]);
 	    
 	}
 	
 }
 
-function addTriggerButtonOnUi(container, item, positioningDetails, image){
+function addTriggerButtonOnUi(container, item, positioningDetails, backgroundImage, progressBackgroundImage, successBackgroundImage, errorBackgroundImage){
 	
 	var button = getTriggerButton(item, positioningDetails);
 	
@@ -112,11 +116,16 @@ function addTriggerButtonOnUi(container, item, positioningDetails, image){
 	
 	container.appendChild(button);
 	
-	setImageBelowButton(positioningDetails, image);
+	setImagesBelowButton(positioningDetails, backgroundImage, progressBackgroundImage, successBackgroundImage, errorBackgroundImage);
+
+	backgroundImage.id = item.action;
+	progressBackgroundImage.id = item.action;
+	successBackgroundImage.id = item.action;
+	errorBackgroundImage.id = item.action;
+
+	backgroundImage.style.display = 'block';
 	
-	image.id = item.action;
-	
-	image.addEventListener('click', function() {
+	backgroundImage.addEventListener('click', function() {
 		sendTriggerRequest(item.action);
 	});
 }
@@ -148,8 +157,17 @@ function getButtonText(item){
 	
 }
 
-function setImageBelowButton(positioningDetails, image){
+function setImagesBelowButton(positioningDetails, backgroundImage, progressBackgroundImage, successBackgroundImage, errorBackgroundImage){
 
+	setImageBelowButton(positioningDetails, backgroundImage);
+	setImageBelowButton(positioningDetails, progressBackgroundImage);
+	setImageBelowButton(positioningDetails, successBackgroundImage);
+	setImageBelowButton(positioningDetails, errorBackgroundImage);
+
+}
+
+function setImageBelowButton(positioningDetails, image){
+	
 	image.height = (positioningDetails.size);
 	image.width = (positioningDetails.size);
 	
@@ -159,90 +177,133 @@ function setImageBelowButton(positioningDetails, image){
 	image.style.top = (positioningDetails.x - 10) + 'px';
 	image.style.left = (positioningDetails.y - 10) + 'px';
 	
-	image.style.display = 'block';
+}
+
+function getProgressImageById(id){
+	return getImageById('progressImageContainer', id);
+}
+
+function getSuccessImageById(id){
+	return getImageById('sucsessImageContainer', id);
+}
+
+function getErrorImageById(id){
+	return getImageById('errorImageContainer', id);
+}
+
+function getImageById(type, id){
 	
-	return image;
+	if(!type || !id){
+		return null;
+	}
+
+	var images = document.getElementById(type).children;
+	
+	for(var i = 0; i < images.length; i++){
+		if(images[i].id === id){
+			return images[i];
+		}
+	}
+	
+	return null;
+	
 }
 
 function sendTriggerRequest(target) {
 
 	if(!target){
-		document.getElementById(target).style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-		setTimeout(function() {
-			document.getElementById(target).style.backgroundColor = 'transparent';
-		}, 1500);
 		return;
 	}
-
-	document.getElementById(target).style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+	
+	var progressImage = getProgressImageById(target);
+	
+	if(!progressImage){
+		return;
+	}
+	progressImage.style.display = 'block';
+	
 	var requestUrl = getConnectionUrl() + '?username=' + getUsername() + '&password=' + getPassword() + '&action=' + target;
 	console.log(requestUrl);
 	
 	performRequest(requestUrl, onTriggerSuccess, onTriggerFailed, target);
-
-	
 }
 
-function onTriggerSuccess(message, target){
-//	closePopup('progressPopup');
+function onTriggerSuccess(target){
 
-	document.getElementById(target).style.backgroundColor = 'blue';
-	var serverResponseObject;
-		
-	try {
-		serverResponseObject = JSON.parse(message);		
-	} catch (e) {
-		console.error(e);
-	}
-
+	var progressImage = getProgressImageById(target);
 	
-	if(serverResponseObject){
-		document.getElementById(target).style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
-		setTimeout(function() {
-			document.getElementById(target).style.backgroundColor = 'transparent';
-		}, 1500);
-	} else {
-		document.getElementById(target).style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-		setTimeout(function() {
-			document.getElementById(target).style.backgroundColor = 'transparent';
-		}, 1500);
+	if(!progressImage){
 		return;
 	}
+	progressImage.style.display = 'none';
+	
+	var successImage = getSuccessImageById(target);
+	
+	if(!successImage){
+		return;
+	}
+	successImage.style.display = 'block';
+
+	setTimeout(function() {
+		successImage.style.display = 'none';
+	}, 1500);
+	
 }
 
-function onTriggerFailed(message, target){
+function onTriggerFailed(target){
+	
+	var progressImage = getProgressImageById(target);
+	
+	if(!progressImage){
+		return;
+	}
+	progressImage.style.display = 'none';
+	var errorImage = getErrorImageById(target);
+	
+	if(!errorImage){
+		return;
+	}
+	errorImage.style.display = 'block';
 
-	document.getElementById(target).style.backgroundColor = 'blue';
-	document.getElementById(target).style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
 	setTimeout(function() {
-		document.getElementById(target).style.backgroundColor = 'transparent';
+		errorImage.style.display = 'none';
 	}, 1500);
+	
 }
 
 function performRequest(requestUrl, onSuccess, onFailure, target) {
 	
 	
 	var xmlHttp = new XMLHttpRequest();
-	
-    xmlHttp.onload = function() { 
-    	
-        if (xmlHttp.status === 200){
-        	
-        		onSuccess(xmlHttp.responseText, target);
-        		
-        } else {
-       		onFailure(xmlHttp.statusText, target);
-        }
+
+    xmlHttp.open("GET", requestUrl, true); // true for asynchronous 
+    
+    
+    xmlHttp.onreadystatechange = function() {
+	    if (xmlHttp.readyState === 4 && xmlHttp.status !== 200) {
+	   		onFailure(target);
+	    } else if (xmlHttp.readyState === 4) {
+	    		onSuccess(target);
+	    }
     };
     
-    xmlHttp.ontimeout = function() {	onFailure("timeout", target);};
+//    xmlHttp.onload = function() { 
+//		
+//        if (xmlHttp.status === 200){
+//        		onSuccess(target);
+//        } else {
+//       		onFailure(target);
+//        }
+//    };
     
-    xmlHttp.open("GET", requestUrl, true); // true for asynchronous 
+    xmlHttp.ontimeout = function() {	
+		onFailure(target);
+	};
+    
     
     xmlHttp.timeout = getDefaultTimeout();
 
     xmlHttp.send();
-	document.getElementById(target).style.backgroundColor = 'white';
 }
 
 function launchMainApp(){

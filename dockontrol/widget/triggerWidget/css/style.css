@@ -36,7 +36,10 @@ body {
 }
 
 
-#imageContainer > img{
+#imageContainer > img,
+#progressImageContainer > img,
+#sucsessImageContainer > img,
+#errorImageContainer > img{
 	position:absolute;
 	display: none;
 }
