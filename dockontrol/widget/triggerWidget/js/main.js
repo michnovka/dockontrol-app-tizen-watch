@@ -79,7 +79,7 @@ function configureWidgetUi(allowedActions){
 
 	var backgroundImages = document.getElementById('imageContainer').children;
 	var progressBackgroundImages = document.getElementById('progressImageContainer').children;
-	var successBackgroundImages = document.getElementById('sucsessImageContainer').children;
+	var successBackgroundImages = document.getElementById('successImageContainer').children;
 	var errorBackgroundImages = document.getElementById('errorImageContainer').children;
 	
 	//max number of elements controlled here with "i < MAX_ITEM_COUNT"
@@ -107,23 +107,20 @@ function addTriggerButtonOnUi(container, item, positioningDetails, backgroundIma
 	var button = getTriggerButton(item, positioningDetails);
 	
 	button.addEventListener('click', function() {
-//		button.style.color = 'red';
-//		setTimeout(function() {
-//			button.style.color = 'white';
-//		}, 2500);
 		sendTriggerRequest(item.action);
 	});
 	
 	container.appendChild(button);
 	
-	setImagesBelowButton(positioningDetails, backgroundImage, progressBackgroundImage, successBackgroundImage, errorBackgroundImage);
-
+	button.id = item.action;
 	backgroundImage.id = item.action;
 	progressBackgroundImage.id = item.action;
 	successBackgroundImage.id = item.action;
 	errorBackgroundImage.id = item.action;
 
 	backgroundImage.style.display = 'block';
+	
+	setImagesBelowButton(positioningDetails, backgroundImage, progressBackgroundImage, successBackgroundImage, errorBackgroundImage);
 	
 	backgroundImage.addEventListener('click', function() {
 		sendTriggerRequest(item.action);
@@ -180,28 +177,32 @@ function setImageBelowButton(positioningDetails, image){
 }
 
 function getProgressImageById(id){
-	return getImageById('progressImageContainer', id);
+	return getElementById('progressImageContainer', id);
 }
 
 function getSuccessImageById(id){
-	return getImageById('sucsessImageContainer', id);
+	return getElementById('successImageContainer', id);
 }
 
 function getErrorImageById(id){
-	return getImageById('errorImageContainer', id);
+	return getElementById('errorImageContainer', id);
 }
 
-function getImageById(type, id){
+function getButtonById(id){
+	return getElementById("triggerContainer", id);
+}
+
+function getElementById(type, id){
 	
 	if(!type || !id){
 		return null;
 	}
 
-	var images = document.getElementById(type).children;
+	var elements = document.getElementById(type).children;
 	
-	for(var i = 0; i < images.length; i++){
-		if(images[i].id === id){
-			return images[i];
+	for(var i = 0; i < elements.length; i++){
+		if(elements[i].id === id){
+			return elements[i];
 		}
 	}
 	
@@ -216,10 +217,10 @@ function sendTriggerRequest(target) {
 	}
 	
 	var progressImage = getProgressImageById(target);
-	
 	if(!progressImage){
 		return;
 	}
+	
 	progressImage.style.display = 'block';
 	
 	var requestUrl = getConnectionUrl() + '?username=' + getUsername() + '&password=' + getPassword() + '&action=' + target;
@@ -235,8 +236,8 @@ function onTriggerSuccess(target){
 	if(!progressImage){
 		return;
 	}
-	progressImage.style.display = 'none';
 	
+	progressImage.style.display = 'none';
 	var successImage = getSuccessImageById(target);
 	
 	if(!successImage){
@@ -250,19 +251,21 @@ function onTriggerSuccess(target){
 	
 }
 
-function onTriggerFailed(target){
+function onTriggerFailed(target, code){
 	
 	var progressImage = getProgressImageById(target);
 	
 	if(!progressImage){
 		return;
 	}
+	
 	progressImage.style.display = 'none';
 	var errorImage = getErrorImageById(target);
 	
 	if(!errorImage){
 		return;
 	}
+	
 	errorImage.style.display = 'block';
 
 	setTimeout(function() {
@@ -278,31 +281,21 @@ function performRequest(requestUrl, onSuccess, onFailure, target) {
 
     xmlHttp.open("GET", requestUrl, true); // true for asynchronous 
     
+    xmlHttp.timeout = getDefaultTimeout();
     
     xmlHttp.onreadystatechange = function() {
-	    if (xmlHttp.readyState === 4 && xmlHttp.status !== 200) {
-	   		onFailure(target);
-	    } else if (xmlHttp.readyState === 4) {
+	    if (xmlHttp.readyState === 4 && (xmlHttp.status === 200 || xmlHttp.status === 0)) {
 	    		onSuccess(target);
+	    } else if (xmlHttp.readyState === 4) {
+	    		onFailure(target, xmlHttp.status + ":" + xmlHttp.readyState);
 	    }
+	    
     };
-    
-//    xmlHttp.onload = function() { 
-//		
-//        if (xmlHttp.status === 200){
-//        		onSuccess(target);
-//        } else {
-//       		onFailure(target);
-//        }
-//    };
-    
+   
     xmlHttp.ontimeout = function() {	
-		onFailure(target);
+		onFailure(target, '555');
 	};
-    
-    
-    xmlHttp.timeout = getDefaultTimeout();
-
+	
     xmlHttp.send();
 }
 
