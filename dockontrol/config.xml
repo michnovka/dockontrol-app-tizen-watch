@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="https://github.com/michnovka/dockontrol-app-tizen-watch" version="1.1.0" viewmodes="maximized">
-    <tizen:app-widget id="dlHoBQcFYO.dockontrol.triggerWidget" primary="true">
+<widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="https://github.com/michnovka/dockontrol-app-tizen-watch-application" version="1.1.0" viewmodes="maximized">
+    <tizen:app-widget id="p7HoBQcFA9.dockontrolApplication.dockontrolWidget" primary="true">
         <tizen:widget-label>Trigger Widget!</tizen:widget-label>
         <tizen:widget-content src="widget/triggerWidget/index.html">
             <tizen:widget-size preview="widget/triggerWidget/preview.png">2x2</tizen:widget-size>
         </tizen:widget-content>
     </tizen:app-widget>
-    <tizen:application id="dlHoBQcFYO.dockontrol" package="dlHoBQcFYO" required_version="2.3.2"/>
+    <tizen:application id="p7HoBQcFA9.dockontrolApplication" package="p7HoBQcFA9" required_version="2.3.2"/>
     <content src="index.html"/>
     <feature name="http://tizen.org/feature/screen.size.normal"/>
     <icon src="icon.png"/>
